@@ -5,6 +5,7 @@ export default function App() {
   const [fromCur, setFromCur] = useState("USD");
   const [toCur, setToCur] = useState("USD");
 
+  const [output, setOutput] = useState("Output");
   useEffect(
     function () {
       async function fetchData() {
@@ -12,20 +13,35 @@ export default function App() {
           const url = `https://api.frankfurter.app/latest?amount=${amount}&from=${fromCur}&to=${toCur}`;
 
           const response = await fetch(url);
-          console.log(response);
-
           if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
           }
 
           const json = await response.json();
-          console.log(json.amount);
+          switch (toCur) {
+            case "USD":
+              setOutput(`$${json.rates.USD}`);
+              break;
+            case "EUR":
+              setOutput(`$${json.rates.EUR}`);
+              break;
+            case "CAD":
+              setOutput(`$${json.rates.CAD}`);
+              break;
+            case "INR":
+              setOutput(`$${json.rates.INR}`);
+              break;
+            default:
+              break;
+          }
         } catch (error) {
           console.error(error.message);
         }
       }
 
-      fetchData();
+      if (fromCur !== toCur && amount) {
+        fetchData();
+      }
     },
     [amount, fromCur, toCur]
   );
@@ -48,7 +64,7 @@ export default function App() {
         <option value="CAD">CAD</option>
         <option value="INR">INR</option>
       </select>
-      <p>OUTPUT</p>
+      <p>{output}</p>
     </div>
   );
 }
